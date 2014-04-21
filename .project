@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>MessageConsumers</name>
+	<comment></comment>
+	<projects>
+		<project>dps-core</project>
+		<project>dps-producer</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>src/etc/accounts.list</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/appdata/message-consumers/config/accounts.list</locationURI>
+		</link>
+		<link>
+			<name>src/etc/message-consumers.properties</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/appdata/message-consumers/config/message-consumers.properties</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>
