@@ -1,5 +1,6 @@
 /**
- * 
+ *  A MQ consumer that reacts to preview images being uploaded from Ark
+ *  A proprietary sidecar file is created and uploaded to the SFTP server for any Amazon KPP file uploads.
  */
 package com.timeinc.messaging.consumers;
 
@@ -38,17 +39,17 @@ import com.timeinc.messaging.utils.PropertyManager;
  */
 public class ArkPreviewUploadEventConsumer implements MessageListener,
 		Constants {
-	private static Logger log = Logger.getLogger(ArkPreviewUploadEventConsumer.class);
+	private final static Logger log = Logger.getLogger(ArkPreviewUploadEventConsumer.class);
 
+	 /* any application that requires the amazon
+	issue-meta.xml file created, the app name needs to match KPP_APPNAME_PREFIX in the message */
 	private static final String KPP_APPNAME_PREFIX = "amazon folio ftp";
 	private static final String TRUE = "true";
 	private static final String ISSUE_META_FILENAME = "issue-meta.xml";
 	private static final String COVER_FILE_NAME = "cover.png";
 	Session session = null;
 
-	/**
-* 
-*/
+
 	public ArkPreviewUploadEventConsumer() {
 		log.info("Consumer started!");
 		ActiveMQConnectionFactory connectionFactory;
@@ -58,8 +59,6 @@ public class ArkPreviewUploadEventConsumer implements MessageListener,
 		MessageConsumer consumer = null;
 		boolean useTransaction = false;
 		connectionFactory = new ActiveMQConnectionFactory(PropertyManager.getPropertyValue(ACTIVEMQ_URL));
-		// connectionFactory = new
-		// ActiveMQConnectionFactory("tcp://localhost:61616");
 		try {
 			connection = connectionFactory.createConnection();
 			connection.start();
@@ -78,7 +77,6 @@ public class ArkPreviewUploadEventConsumer implements MessageListener,
 	 * 
 	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
 	 */
-	@Override
 	public void onMessage(Message msg) {
 		try {
 			String port =  msg.getStringProperty("port");
@@ -102,7 +100,7 @@ public class ArkPreviewUploadEventConsumer implements MessageListener,
 			Calendar c = Calendar.getInstance();
 			c.setTimeInMillis(Long.parseLong(shortdate));
 			String sd = DateFormatter.dateToString(c.getTime(), "MM-dd-yyyy");
-			// if the request if for Amazon KPP create the xml file and upload it to sftp
+//			if the request if for Amazon KPP create the xml file and upload it to sftp
 			if (pubname != null) {
 				pubname = pubname.replaceAll(" ", "");
 			}
@@ -115,6 +113,7 @@ public class ArkPreviewUploadEventConsumer implements MessageListener,
 						log.debug(tf + " does not exists, creating it.");
 						tf.getParentFile().mkdirs();
 					}
+//					If needed, get sftp password locally to it more secure instead of passing it in the message as done here
 					String ftpPath = "sftp://" + login + ":" + password + "@" + host + "/" + pubname;
 					FileWriter fw = new FileWriter(tf);
 					fw.write("<issue-meta>" +
@@ -126,7 +125,7 @@ public class ArkPreviewUploadEventConsumer implements MessageListener,
 							"</issue-meta>");
 					fw.close();
 					
-					// lets now upload the file
+//					lets now upload the file
 					fsManager = new StandardFileSystemManager();
 					FileSystemOptions opts = new FileSystemOptions();
 				    SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(opts, "no");
@@ -178,14 +177,9 @@ public class ArkPreviewUploadEventConsumer implements MessageListener,
 							+ ", shortdate: " + shortdate 
 							+ ", coverstory: " + coverstory
 							+ ", Content Path: " + contentpath);
-			// System.out.println(((TextMessage) msg).getText());
 		} catch (JMSException e) {
 			log.error("OnMessage error: " + e);
 		}
 	}
 
-	
-	public static void main(String args[]) {
-		System.out.println(StringEscapeUtils.escapeXml("It's the spring issue: asparagus, peas, artichokes, strawberries and rhubarb. Plus: amazing tilapia recipes & low-cal. quesadillas"));
-	}
 }

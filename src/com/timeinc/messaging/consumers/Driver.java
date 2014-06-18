@@ -30,9 +30,9 @@ public class Driver implements Constants {
 
 	static final Logger log = Logger.getLogger(Driver.class);
 	
-	static final File accountFile = new File(ACCOUNTS_FILE);
-	
-	
+	// list of Adobe DPS accounts (email address) one per line
+	static final File accountFile = new File(ACCOUNTS_FILE); 
+		
 	private List<String> accounts = new ArrayList<String>();
 	
 	
@@ -63,7 +63,7 @@ public class Driver implements Constants {
 				s.trim();
 				if (!accounts.contains(s)) {
 					accounts.add(s);
-					new FolioPublishingConsumer(s);
+					new FolioPublishingConsumer(s);	// one FolioPublishingConsumer per account is created
 					count++;
 				}
 				
@@ -75,6 +75,7 @@ public class Driver implements Constants {
 			new ArkContentUploadEventConsumer();
 			new ArkIssueDataChangeEventConsumer();
 			new ArkPreviewUploadEventConsumer();
+			new DPSManagingConsumer();
 		} catch (FileNotFoundException e) {
 			log.error(e);
 		} catch (IOException e) {
@@ -112,7 +113,6 @@ public class Driver implements Constants {
 		/* (non-Javadoc)
 		 * @see org.apache.commons.vfs2.FileListener#fileChanged(org.apache.commons.vfs2.FileChangeEvent)
 		 */
-		@Override
 		public void fileChanged(FileChangeEvent arg0) throws Exception {
 			log.info("Account list file changed, processing!");
 			createConsumers();
@@ -121,7 +121,6 @@ public class Driver implements Constants {
 		/* (non-Javadoc)
 		 * @see org.apache.commons.vfs2.FileListener#fileCreated(org.apache.commons.vfs2.FileChangeEvent)
 		 */
-		@Override
 		public void fileCreated(FileChangeEvent arg0) throws Exception {
 			
 		}
@@ -129,7 +128,6 @@ public class Driver implements Constants {
 		/* (non-Javadoc)
 		 * @see org.apache.commons.vfs2.FileListener#fileDeleted(org.apache.commons.vfs2.FileChangeEvent)
 		 */
-		@Override
 		public void fileDeleted(FileChangeEvent arg0) throws Exception {
 			
 		}

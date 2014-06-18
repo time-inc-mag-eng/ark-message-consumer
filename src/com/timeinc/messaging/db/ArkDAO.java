@@ -1,5 +1,7 @@
 /**
- * 
+ * Utility DAO class to get data from Ark database.
+ * This utility uses connection to MQCLIENT DB, and runs StoredProc in it to access Ark data from 
+ * Ark database.
  */
 package com.timeinc.messaging.db;
 
@@ -123,23 +125,5 @@ public class ArkDAO {
 		return appname;
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try {
-//			Map<String, String> m = new ArkDAO().getDossierArticleMap("VJs9cAd_hUC62oWGYV5--A");
-//			System.out.println(m.size());
-			
-//			System.out.println(new ArkDAO().getFolioId("com.timeinc.wallpaper.ipad.inapp.04082011"));
-			System.out.println(new ArkDAO().getAppname("com.timeinc.wallpaper.ipad.inapp.04082011"));
-			
-//			ArkDPSInfo i = new ArkDAO().getDPSInfo("com.timeinc.wallpaper.ipad.inapp.04082011");
-//			System.out.println(i.getAddress() + "\n" + i.getConsumerKey() + "\n" + i.getConsumerSecret() + "\n" + i.getPassword() + "\n" + i.getUserName());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-	}
 
 }

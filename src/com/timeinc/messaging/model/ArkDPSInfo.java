@@ -1,5 +1,5 @@
 /**
- * 
+ * Bean that holds DPS user (login) information
  */
 package com.timeinc.messaging.model;
 

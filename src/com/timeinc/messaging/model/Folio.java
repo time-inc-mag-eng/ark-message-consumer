@@ -1,5 +1,5 @@
 /**
- * 
+ * DB POJO object for Folio 
  */
 package com.timeinc.messaging.model;
 

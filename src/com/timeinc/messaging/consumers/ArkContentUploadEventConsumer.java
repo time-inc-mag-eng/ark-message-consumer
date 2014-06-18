@@ -1,5 +1,5 @@
 /**
- * 
+ * A MQ message consumer that reacts to a content being uploaded from Ark
  */
 package com.timeinc.messaging.consumers;
 
@@ -23,7 +23,7 @@ import com.timeinc.messaging.utils.PropertyManager;
  */
 public class ArkContentUploadEventConsumer implements MessageListener,
 		Constants {
-	private static Logger log = Logger.getLogger(ArkContentUploadEventConsumer.class);
+	private static final Logger log = Logger.getLogger(ArkContentUploadEventConsumer.class);
 	
 	Session session = null;
 	
@@ -56,7 +56,6 @@ public class ArkContentUploadEventConsumer implements MessageListener,
 	/* (non-Javadoc)
 	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
 	 */
-	@Override
 	public void onMessage(Message msg) {
 		log.info("picked up message");
 		try {

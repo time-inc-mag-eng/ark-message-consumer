@@ -1,5 +1,5 @@
 /**
- * 
+ * Utility DAO used when Folio publishing is requested to keep status of each requests.
  */
 package com.timeinc.messaging.db;
 
@@ -256,30 +256,5 @@ public class PublishFolioDAO {
 		return l;
 	}
 
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try {
-
-			PublishFolioDAO dao = new PublishFolioDAO();
-//			Folio f = dao.getFolioByFolioId("9WbkNQ6_l0yg8JwXjIq5jQ");
-			//l.add(dao.getFolioByFolioId("1XhhVo2cUkWdSaRWtrR0Rw"));
-			/*l.add(dao.getFolioByFolioId("QEFADV234ADFC5"));
-			l.add(dao.getFolioByFolioId("QEFADV234ADFC"));
-			l.add(dao.getFolioByFolioId("QEFADV234ADFC3"));
-			
-			l.add(dao.getFolioByProductId("com.timeinc.si.ipad.inapp.011122013"));
-			l.add(dao.getFolioByProductId("com.timeinc.si.ipad.inapp.051122013"));
-			l.add(dao.getFolioByProductId("com.timeinc.si.ipad.inapp.021122013"));*/
-			
-			dao.getPendingFoliosByEmail("ashim_pradhan@timeinc.com");
-//			System.out.println(f.getId() + "\t" + f.getFolioId() + "\t" + f.getPassword());
-			
-		} catch (SQLException e) {
-			log.error(e);
-		} 
-	}
 
 }

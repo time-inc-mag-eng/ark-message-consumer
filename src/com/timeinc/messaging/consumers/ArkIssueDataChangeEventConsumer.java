@@ -1,5 +1,5 @@
 /**
- * 
+ *  A MQ message consumer that reacts to Ark issue data change event
  */
 package com.timeinc.messaging.consumers;
 
@@ -26,9 +26,7 @@ public class ArkIssueDataChangeEventConsumer implements MessageListener, Constan
 	
 	Session session = null;
 	
-	/**
-	 * 
-	 */
+
 	public ArkIssueDataChangeEventConsumer() {
 		log.info("Consumer started!");
 		ActiveMQConnectionFactory connectionFactory;
@@ -38,7 +36,6 @@ public class ArkIssueDataChangeEventConsumer implements MessageListener, Constan
 		MessageConsumer consumer = null;
 		boolean useTransaction = false;
 		connectionFactory = new ActiveMQConnectionFactory(PropertyManager.getPropertyValue(ACTIVEMQ_URL));
-//     	connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
          try {
 			connection = connectionFactory.createConnection();
 			connection.start();
@@ -56,13 +53,11 @@ public class ArkIssueDataChangeEventConsumer implements MessageListener, Constan
 	/* (non-Javadoc)
 	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
 	 */
-	@Override
 	public void onMessage(Message msg) {
 		log.info("picked up message");
 		try {
 			log.info("Table Name: \t" + msg.getStringProperty("tablename"));
 			log.info("Record Id: \t" + msg.getStringProperty("recordid"));
-//			System.out.println(((TextMessage) msg).getText());
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}

@@ -1,5 +1,7 @@
 /**
- * 
+ * Publishes Folios to DPS keeping track of statuses of each Folio publish request
+ * in MQCLIENT database.
+ * This consumer reacts to a Folio Publishing request with the correct JMS message selector.
  */
 package com.timeinc.messaging.consumers;
 
@@ -40,9 +42,7 @@ import com.timeInc.dps.publish.response.Publish;
 import com.timeInc.dps.publish.response.PublishingStatus;
 import com.timeInc.dps.publish.response.PublishingStatus.Response;
 import com.timeInc.dps.translator.ResponseHandlerException;
-import com.timeInc.tiwg.utils.DateFormatter;
 import com.timeInc.tiwg.utils.EmailProcessor;
-import com.timeinc.messaging.db.ArkDAO;
 import com.timeinc.messaging.db.PublishFolioDAO;
 import com.timeinc.messaging.model.Folio;
 import com.timeinc.messaging.utils.Constants;
@@ -54,7 +54,7 @@ import com.timeinc.messaging.utils.PropertyManager;
  */
 public class FolioPublishingConsumer implements MessageListener, Constants {
 
-	private static Logger log = Logger.getLogger(FolioPublishingConsumer.class);
+	private static final Logger log = Logger.getLogger(FolioPublishingConsumer.class);
 	
 	Session session = null;
 	PublishFolioDAO dao = null;
@@ -63,16 +63,14 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 	private static final boolean UPDATE_CONTENT = true;
 	private static final String INITIAL_STATUS = "submitted";
 	private static final String WEB_RENDITION = "WEB";
-//	private static final String CONSUMER = "Consumer(";
 	private String account;
 	private String selector = "accountName='";
 	
-	ArkDAO arkDAO = null;
+
 	/**
-	 * 
+	 * @param acnt is the selector
 	 */
 	public FolioPublishingConsumer(String acnt) {
-		arkDAO = new ArkDAO();
 		this.account = acnt + " ";
 		this.selector = selector + acnt + "'";
 		log.debug(account + "Started listening to messages");
@@ -109,7 +107,6 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 	/* (non-Javadoc)
 	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
 	 */
-	@Override
 	public void onMessage(Message msg) {
 		String email = null;
 		String loggedInUser = null;
@@ -117,7 +114,6 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 		String message = "success";
 		try {
 			Publish pub = null;
-			//Counting seconds
 			MapMessage jmsmessage = (javax.jms.MapMessage) msg;
 			email = jmsmessage.getString("email");
 			loggedInUser = jmsmessage.getString("userEmail");
@@ -127,8 +123,6 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 			String issueName = jmsmessage.getString("issueName");
 			String rendition = jmsmessage.getString("rendition");
 			long saleDate = jmsmessage.getLong("saleDate");
-//			String contentType = jmsmessage.getString("type"); // preview or content
-//			boolean privatePublish = jmsmessage.getBoolean("private");
 			boolean retail = jmsmessage.getBoolean("retail");
 			
 			
@@ -150,8 +144,6 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 				}
 				
 			} 
-			
-			
 			
 			/*
 			 * If web rendition, publish as public
@@ -215,7 +207,9 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 			} catch(JMSException e) { 
 				log.error(account+ e.getMessage());
 			} finally {
-				producer.close();
+				if (producer != null) {
+					producer.close();
+				}
 			}
 
 			/* let's now check status of the publish request until success or failure */
@@ -325,24 +319,6 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 
 
 	/**
-	 * @param folioId
-	 * @param productId
-	 
-	private void updateFolioProducerWithWebRendition(String folioId, String productId) {
-		try {
-			ArkDPSInfo dpsInfo = arkDAO.getDPSInfo(productId);
-			ManagedProducer producer = ManagedProducers.getHttpClient(dpsInfo.getAddress(), dpsInfo.getConsumerKey(), dpsInfo.getConsumerSecret());
-			producer.open(new OpenSessionConfig(dpsInfo.getUserName(), dpsInfo.getPassword(), false));
-			producer.sendRequest(new UpdateFolioRequest(new UpdateFolioConfig.Builder(folioId).withViewer(Viewer.WEB).build()));
-			log.debug("Done updating Web Only Redndition");
-		} catch (SQLException e) {
-			log.error("Could not get DPS INFO for: " + productId + "\n, This issue will not be updated as Web only rendition. Fix it manually.", e);
-		}
-		
-	}
-	*/
-	
-	/**
 	 * @param saleDate
 	 * @return boolean
 	 */
@@ -357,31 +333,13 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 	 */
 	public long getPublishSchedule(long saledate) {
 		long curdate = System.currentTimeMillis();
-//		System.out.println("saledate - curdate : " + (saledate - curdate));
 		if (saledate - curdate > (45 * 60 * 1000)) { // 45 mins
 			return saledate;
 		}
 		return curdate + 45 * 60 * 1000;
 	}
 
-	/**
-	 * @param stringProperty
-	 * @return boolean
-	 */
-	public boolean isWebOnlyRendition(String folioId) {
-		log.debug("Checking to see if web rendition for folioId: " + folioId);
-		try {
-			String appName = arkDAO.getAppname(folioId);
-			log.debug("App name is: " + appName);
-			if (appName != null && appName.toLowerCase().contains("web")) {
-				return true;
-			}
-		} catch (SQLException e) {
-			log.error(e);
-		}
 	
-		return false;
-	}
 
 	/**
 	 * @param folioBean
@@ -406,13 +364,13 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 	/**
 	 * Gets the status of a publishing request. Output contains the request Id, details, status, and progress for each 
 	 * request. You can use the requestId to cancel or delete the publish request. In general, publishing requests are 
-	 * long operations and may take several minutes to complete. After submitting the publishing request, it’s best to wait
+	 * long operations and may take several minutes to complete. After submitting the publishing request, itï¿½s best to wait
 	 * at least one minute before calling this API, and to wait at least one minute between status requests. 
-	 * A jobStatus=complete in the response indicates that publishing is complete. If the ‘onSaleDate’ was specified in 
-	 * the publish request, a second <request> will be returned in the response’s list of <requests>. 
-	 * The original publish request will have a ‘jobStatus’ of ‘completed’. The new scheduled request will have a jobStatus 
-	 * of ‘pending’, then ‘started’, then ‘completed’; the scheduled request will have a ‘parentRequestId’ equal to the 
-	 * original request’s requestId. 
+	 * A jobStatus=complete in the response indicates that publishing is complete. If the ï¿½onSaleDateï¿½ was specified in 
+	 * the publish request, a second <request> will be returned in the responseï¿½s list of <requests>. 
+	 * The original publish request will have a ï¿½jobStatusï¿½ of ï¿½completedï¿½. The new scheduled request will have a jobStatus 
+	 * of ï¿½pendingï¿½, then ï¿½startedï¿½, then ï¿½completedï¿½; the scheduled request will have a ï¿½parentRequestIdï¿½ equal to the 
+	 * original requestï¿½s requestId. 
 	 * @param status
 	 * @return Response
 	 */
@@ -449,37 +407,5 @@ public class FolioPublishingConsumer implements MessageListener, Constants {
 		return sub.replace(template);
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		/*String emails[] = {"EWS_Generic_Apple@timeinc.com"};
-		for (String a : emails) {
-			new FolioPublishingConsumer(a);
-		}
-			
-			new FolioPublishingConsumer(2);*/
-//			System.out.println(new FolioPublishingConsumer("EWS_Generic_Apple@timeinc.com").isWebOnlyRendition("com.timeinc.wallpaper.ipad.inapp.04082011"));
-		
-//		log.info("FolioPublishingConsumers Started");
-		/*Folio f = null;
-		try {
-			f = new PublishFolioDAO().getFolioById(35);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		Map<String, String> m = new HashMap<String, String>();
-		FolioPublishingConsumer con = new FolioPublishingConsumer("adfasd");
-		con.setValuesMap(m, f);
-		System.out.println(con.getTransformedString(PropertyManager.getPropertyValue(PROP_STATUS_EMAIL_BODY), m));
-		*/
-		Calendar cal = Calendar.getInstance();
-		System.out.println("current time: " + DateFormatter.dateToString(cal.getTime(), "dd/MM/yyyy HH:mm"));
-		cal.add(Calendar.MINUTE, 20);
-		System.out.println("rolled a day time: " + DateFormatter.dateToString(cal.getTime(), "dd/MM/yyyy HH:mm"));
-		long l = new FolioPublishingConsumer("test").getPublishSchedule(cal.getTimeInMillis());
-		Date d = new Date(l);
-		System.out.println(DateFormatter.dateToString(d, "dd/MM/yyyy HH:mm"));
-	}
 
 }

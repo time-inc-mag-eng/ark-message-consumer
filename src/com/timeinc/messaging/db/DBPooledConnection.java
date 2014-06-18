@@ -1,5 +1,5 @@
 /**
- * 
+ *  Provides pooled database connection resource
  */
 package com.timeinc.messaging.db;
 
@@ -27,12 +27,10 @@ public class DBPooledConnection implements Constants{
 	private static Logger log = Logger.getLogger(DBPooledConnection.class);
 	
 	private static DataSource dataSource;
-	//private static DataSource arkDataSource;
 	
 	static {
 		try {			
 			dataSource = setupDataSource();
-//			arkDataSource = setupArkDataSource();
 		} catch (SQLException e) {
 			log.error(e);
 		}
@@ -48,29 +46,6 @@ public class DBPooledConnection implements Constants{
 	}
 	
 	
-	/**
-	 * @return Connection
-	 * @throws SQLException
-	 
-	public static Connection getArkConnection() throws SQLException {
-		return arkDataSource.getConnection();
-	}*/
-	
-	/**
-	 * @return DataSource
-	 * @throws SQLException 
-	 
-	private static DataSource setupArkDataSource() throws SQLException {
-		/* set up db connection properties
-		Map<String, String> overrides = new HashMap<String, String>();
-		overrides.put("maxIdleTime", "60");
-		overrides.put("idleConnectionTestPeriod", "55");
-		DataSource unpooled = DataSources.unpooledDataSource(PropertyManager.getPropertyValue(PROP_ARKDB_URL), 
-				PropertyManager.getPropertyValue(PROP_ARKDB_USERNAME), PropertyManager.getPropertyValue(PROP_ARKDB_PASSWORD));
-		DataSource pooled = DataSources.pooledDataSource(unpooled, overrides);
-		return pooled;
-	}*/
-
 	/**
 	 * @return DataSource
 	 * @throws SQLException
@@ -121,29 +96,4 @@ public class DBPooledConnection implements Constants{
 		}		
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		Connection connection = null ;
-		Statement stmt = null;
-		ResultSet rs = null;
-		try {
-			connection = DBPooledConnection.getConnection();
-					stmt = connection.createStatement();
-			rs = stmt.executeQuery("Select * from PUBLISH_FOLIO_QUEUE");
-			if (rs.next()) {
-				System.out.println(rs.getString(1) + " " + rs.getString(2));
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			attemptClose(rs);
-			attemptClose(stmt);
-			attemptClose(connection);
-		}
-
-	}
-
 }

@@ -1,5 +1,5 @@
 /**
- * Nov 15, 2010
+ *  Utility to do simple Des Encryption
  */
 package com.timeinc.messaging.utils;
 
@@ -16,7 +16,7 @@ import javax.crypto.spec.PBEParameterSpec;
 
 /**
  * @author apradhan1271
- *
+ * Nov 15, 2010
  */
 public class DesEncrypter { 
 	Cipher ecipher; 
@@ -86,18 +86,6 @@ public class DesEncrypter {
 		catch (java.io.IOException e) { } 
 		return null; 
 	} 
-	
-	
-	public static void main(String args[]) {
-		DesEncrypter e = new DesEncrypter();
-		//String password = "titp4dmul" dev;
-		String password ="1luv*nix"; //origin.dreader.net
-		//String password = "Timp4pdmul";
-		//String password = "timeQ!W@E#";
-		//String encrypted = e.encrypt(password);
-		String encrypted = e.encrypt(password);
-		System.out.println(encrypted);
-		System.out.println(e.decrypt("FPncMpKbfZABquZAc0sCZA=="));
-	}
+
 	
 }

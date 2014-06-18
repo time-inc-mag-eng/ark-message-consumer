@@ -13,6 +13,7 @@ public interface Constants {
 	
 	String ACTIVEMQ_URL = "activemq-url";
 	String PUBLISH_QUEUE = "publish-queue";
+	String DPSMANAGING_QUEUE = "DPSManage-queue";
 	String ARK_DATACHANGE_TOPIC = "ark.datachange.topic";
 	String ARK_CONTENTUPLOAD_TOPIC = "ark.contentupload.topic";
 	String ARK_PREVIEWUPLOAD_TOPIC = "ark.previewupload.topic";

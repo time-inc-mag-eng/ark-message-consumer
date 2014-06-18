@@ -1,10 +1,11 @@
 /**
- * 
+ * Utility to read properties file and give back property values
  */
 package com.timeinc.messaging.utils;
 
 import java.io.File;
 import java.util.NoSuchElementException;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
@@ -28,12 +29,12 @@ public class PropertyManager implements Constants {
 		File f = new File(PROPFILEPATH);
 		if (f.exists()) {
 			log.debug("Loading properties from '" + PROPFILEPATH + "'");
-			try {
-				properties = new PropertiesConfiguration(f);
-			} catch (ConfigurationException e) {
-				log.error("Could not load properties file: " + PROPFILEPATH, e);
-			}
-			/* auto load the properties file when it changes */
+				try {
+					properties = new PropertiesConfiguration(f);
+				} catch (ConfigurationException e) {
+					log.error("Could not load properties file: " + PROPFILEPATH, e);
+				}
+ 			/* auto load the properties file when it changes */
 			properties.setReloadingStrategy(new FileChangedReloadingStrategy()); 
 		}
 		if (properties == null) {
@@ -72,14 +73,6 @@ public class PropertyManager implements Constants {
 			/* do nothing, we will just return empty string if property key not found */
 		}
 		return vals;
-	}
-	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		System.out.println(PropertyManager.getPropertyValue("adobe-origin-url"));
 	}
 
 }
